@@ -9,6 +9,7 @@ import {
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { usePokemonList, SPRITE_URL } from "@/lib/pokeapi";
+import { colors } from "@/lib/theme";
 import type { PokemonListItem } from "@/types/pokemon";
 
 export default function PokedexScreen() {
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
   },
   id: {
     fontSize: 13,
-    color: "#888",
+    color: colors.text.tertiary,
   },
   name: {
     fontSize: 17,
