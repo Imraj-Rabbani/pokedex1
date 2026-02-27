@@ -1,39 +1,83 @@
-import { Text, View, StyleSheet, Pressable } from "react-native";
-import { router } from "expo-router";
+import {
+  Text,
+  View,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { usePokemonList, SPRITE_URL } from "@/lib/pokeapi";
+import type { PokemonListItem } from "@/types/pokemon";
 
 export default function PokedexScreen() {
+  const router = useRouter();
+  const { pokemon, loading, loadMore } = usePokemonList();
+
+  const renderItem = ({ item }: { item: PokemonListItem }) => (
+    <Pressable
+      style={styles.row}
+      onPress={() => router.push(`/(pokedex)/${item.id}`)}
+    >
+      <Image
+        source={{ uri: `${SPRITE_URL}/${item.id}.png` }}
+        style={styles.sprite}
+        contentFit="contain"
+        transition={200}
+      />
+      <View style={styles.info}>
+        <Text style={styles.id}>#{String(item.id).padStart(3, "0")}</Text>
+        <Text style={styles.name}>{item.name}</Text>
+      </View>
+    </Pressable>
+  );
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Pokedex</Text>
-      <Pressable
-        style={styles.button}
-        onPress={() => router.push("/(pokedex)/25")}
-      >
-        <Text style={styles.buttonText}>View Pikachu (#25)</Text>
-      </Pressable>
-    </View>
+    <FlatList
+      data={pokemon}
+      keyExtractor={(item) => String(item.id)}
+      renderItem={renderItem}
+      contentContainerStyle={styles.list}
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={
+        loading ? (
+          <ActivityIndicator style={styles.loader} size="small" />
+        ) : null
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
+  list: {
+    paddingVertical: 8,
+  },
+  row: {
+    flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
-  text: {
-    fontSize: 18,
+  sprite: {
+    width: 56,
+    height: 56,
   },
-  button: {
-    backgroundColor: "#e63946",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 10,
+  info: {
+    marginLeft: 12,
+    gap: 2,
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+  id: {
+    fontSize: 13,
+    color: "#888",
+  },
+  name: {
+    fontSize: 17,
+    fontWeight: "500",
+    textTransform: "capitalize",
+  },
+  loader: {
+    paddingVertical: 20,
   },
 });
